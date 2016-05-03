@@ -1,0 +1,19 @@
+{
+  "name": "lunalovebot",
+  "version": "1.0.0",
+  "description": "LunaLoveBad's Gambling Game Bot",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "github.com/singlerider/lunalovebot"
+  },
+  "author": "singlerider",
+  "license": "ISC",
+  "dependencies": {
+    "request": "^2.72.0",
+    "tmi.js": "0.0.29"
+  }
+}
