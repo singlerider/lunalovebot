@@ -1,4 +1,7 @@
 "use strict";
+
+let gambleExists = false;
+
 class Gamble {
   constructor(betAmount) {
     this.betAmount = betAmount;
@@ -28,3 +31,6 @@ let gamble = new Gamble();
 gamble.addPlayer("singlerider", 5);
 console.log("singlerider EXISTS?", gamble.playerExists("singlerider"));
 console.log("lunalovebot EXISTS?", gamble.playerExists("lunalovebot"));
+
+exports.gambleExists = gambleExists;
+exports.Gamble = Gamble;
