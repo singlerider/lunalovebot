@@ -10,9 +10,13 @@ let addUsers = require("./libs/db").addUsers;
 let pointsCron = require("./libs/points").pointsCron;
 let getPoints = require("./libs/points").getPoints;
 
+function sendMessage(channel, username, message) {
+  let intro = `|${username}| `;
+  bot.say(channel, intro + message);
+}
+
 bot.connect().then(function(data) {
   pointsCron(PRIMARY_CHANNEL.replace("#", ""));
-  // TODO start points timer from here
 }).catch(function(err) {
   //
 });
@@ -37,7 +41,7 @@ bot.on("chat", function(channel, user, message, self) {
       let points = getPoints(user.username);
       resolve(points);
     }).then(function(points) {
-      bot.say(channel, `${points}`);
+      sendMessage(chan, user.username, `You've got ${points} tokens!`);
       return;
     });
   }
