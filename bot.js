@@ -9,9 +9,10 @@ let getAutoBan = require("./libs/db").getAutoBan;
 let addUsers = require("./libs/db").addUsers;
 let pointsCron = require("./libs/points").pointsCron;
 let getPoints = require("./libs/points").getPoints;
+let leaderboard = require("./libs/points").leaderboard;
 
 function sendMessage(channel, username, message) {
-  let intro = `|${username}| `;
+  let intro = `\<${username}\> `;
   bot.say(channel, intro + message);
 }
 
@@ -42,6 +43,16 @@ bot.on("chat", function(channel, user, message, self) {
       resolve(points);
     }).then(function(points) {
       sendMessage(chan, user.username, `You've got ${points} tokens!`);
+      return;
+    });
+  }
+
+  if (message.toLowerCase() == "!leaderboard" && user.mod == true) {
+    new Promise(function(resolve, reject) {
+      resolve(leaderboard());
+    }).then(function(results) {
+      console.log(results);
+      sendMessage(chan, user.username, results);
       return;
     });
   }

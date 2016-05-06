@@ -4,6 +4,7 @@ let CronJob = require('cron').CronJob;
 let request = require('request');
 let addPointsBatch = require("./db").addPointsBatch;
 let getUserPoints = require("./db").getUserPoints;
+let getLeaderboard = require("./db").getLeaderboard;
 
 function parseUsers(userDict) {
   let allUsers = [];
@@ -17,6 +18,22 @@ function parseUsers(userDict) {
 
 exports.getPoints = function(username) {
   return getUserPoints(username);
+}
+
+exports.leaderboard = function() {
+  return new Promise(function(resolve, reject) {
+    resolve(getLeaderboard());
+  }).then(function(results) {
+    let stringReturn = "The top 10 token Ds are: "
+    let leaders = [];
+    for (let leader in results) {
+      if (!isNaN(parseInt(leader))) {
+        leaders.push(`${parseInt(leader) + 1})${results[leader].username} ${results[leader].points}`);
+      }
+    }
+    leaders = leaders.join("|");
+    return stringReturn + leaders;
+  });
 }
 
 exports.pointsCron = function(channel) {

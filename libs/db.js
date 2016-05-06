@@ -15,7 +15,7 @@ db.serialize(function() {
   );
 });
 
-exports.addUsers = function(usernames) {  // This is much simpler in Python
+exports.addUsers = function(usernames) { // This is much simpler in Python
   let statement = `INSERT OR IGNORE INTO users(id, username)`;
   for (let username in usernames) {
     if (username == 0) {
@@ -30,7 +30,7 @@ exports.addUsers = function(usernames) {  // This is much simpler in Python
   db.run(statement, usernames);
 };
 
-exports.addPointsBatch = function(usernames) {  // SUPER hack
+exports.addPointsBatch = function(usernames) { // SUPER hack
   // console.log("USERS", usernames);
   for (let username of usernames) {
     // console.log("USERNAME", username);
@@ -52,17 +52,27 @@ exports.getAutoBan = function(username) {
   let autoban = 0;
   return new Promise(function(resolve, reject) {
     db.each(`SELECT autoban FROM users WHERE username = ?`, username, function(err, row) {
-        autoban = row.autoban;
-        resolve(autoban);
+      autoban = row.autoban;
+      resolve(autoban);
     });
+  });
+};
+
+exports.getLeaderboard = function() {
+  return new Promise(function(resolve, reject) {
+    db.all(`SELECT username, points FROM users ORDER BY points DESC LIMIT 10;`, [], function(err, results) {
+      resolve(results);
+    });
+  }).then(function(body){
+    return body;
   });
 };
 
 exports.getUserPoints = function(username) {
   return new Promise(function(resolve, reject) {
     db.each(`SELECT points FROM users WHERE username = ?`, username, function(err, row) {
-        let points = row.points;
-        resolve(points);
+      let points = row.points;
+      resolve(points);
     });
   });
 };
