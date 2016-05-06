@@ -7,8 +7,10 @@ const SUPERUSER = irc.SUPERUSER;
 let addAutoban = require("./libs/db").addAutoban;
 let getAutoBan = require("./libs/db").getAutoBan;
 let addUsers = require("./libs/db").addUsers;
+let pointsCron = require("./libs/points").pointsCron;
 
 bot.connect().then(function(data) {
+  pointsCron(PRIMARY_CHANNEL.replace("#", ""));
   // TODO start points timer from here
 }).catch(function(err) {
   //

@@ -30,12 +30,24 @@ exports.addUsers = function(usernames) {  // This is much simpler in Python
   db.run(statement, usernames);
 };
 
+exports.addPointsBatch = function(usernames) {  // SUPER hack
+  // console.log("USERS", usernames);
+  for (let username of usernames) {
+    // console.log("USERNAME", username);
+    let statement = `
+      INSERT OR REPLACE INTO users (id, username, points)
+        VALUES (NULL, ?, (SELECT points FROM users WHERE username = ?) + 1);
+    `;
+    db.run(statement, [username, username]);
+  }
+  db.run("UPDATE users SET points = 0 WHERE points IS NULL;");
+};
+
 exports.addAutoban = function(username) {
   exports.addUsers([username]);
   db.run(`UPDATE users SET autoban = 1 WHERE username = ?`, username);
 };
 
-let username = "lewd";
 exports.getAutoBan = function(username) {
   let autoban = 0;
   return new Promise(function(resolve, reject) {
@@ -45,7 +57,5 @@ exports.getAutoBan = function(username) {
     });
   });
 }
-
-
 
 exports.db = db;
