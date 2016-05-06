@@ -8,6 +8,7 @@ let addAutoban = require("./libs/db").addAutoban;
 let getAutoBan = require("./libs/db").getAutoBan;
 let addUsers = require("./libs/db").addUsers;
 let pointsCron = require("./libs/points").pointsCron;
+let getPoints = require("./libs/points").getPoints;
 
 bot.connect().then(function(data) {
   pointsCron(PRIMARY_CHANNEL.replace("#", ""));
@@ -26,7 +27,18 @@ bot.on("chat", function(channel, user, message, self) {
     }).then(function(autoban) {
       if (autoban == 1) {
         bot.say(channel, `/ban ${user.username}`);
+        return;
       }
+    });
+  }
+
+  if (message.toLowerCase() == "!tokens") {
+    new Promise(function(resolve, reject) {
+      let points = getPoints(user.username);
+      resolve(points);
+    }).then(function(points) {
+      bot.say(channel, `${points}`);
+      return;
     });
   }
 
@@ -34,6 +46,7 @@ bot.on("chat", function(channel, user, message, self) {
     message = message.toLowerCase().split(" ");
     if (message[0].replace(PREFIX, "") == "autoban") {
       addAutoban(message[1]);
+      return;
     }
   }
 

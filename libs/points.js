@@ -3,6 +3,7 @@
 let CronJob = require('cron').CronJob;
 let request = require('request');
 let addPointsBatch = require("./db").addPointsBatch;
+let getUserPoints = require("./db").getUserPoints;
 
 function parseUsers(userDict) {
   let allUsers = [];
@@ -14,9 +15,13 @@ function parseUsers(userDict) {
   return allUsers;
 }
 
+exports.getPoints = function(username) {
+  return getUserPoints(username);
+}
+
 exports.pointsCron = function(channel) {
   let offset = parseInt(Math.random() * 60);
-  let pattern = `${offset} */1 * * * *`;
+  let pattern = `${offset} */5 * * * *`;
   let job = new CronJob(pattern, function() {
       // PROMISE - ONLY RUN JOB WHEN ONLINE
       new Promise(function(resolve, reject) {

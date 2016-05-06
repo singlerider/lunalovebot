@@ -40,7 +40,7 @@ exports.addPointsBatch = function(usernames) {  // SUPER hack
     `;
     db.run(statement, [username, username]);
   }
-  db.run("UPDATE users SET points = 0 WHERE points IS NULL;");
+  db.run("UPDATE users SET points = 1 WHERE points IS NULL;");
 };
 
 exports.addAutoban = function(username) {
@@ -56,6 +56,15 @@ exports.getAutoBan = function(username) {
         resolve(autoban);
     });
   });
-}
+};
+
+exports.getUserPoints = function(username) {
+  return new Promise(function(resolve, reject) {
+    db.each(`SELECT points FROM users WHERE username = ?`, username, function(err, row) {
+        let points = row.points;
+        resolve(points);
+    });
+  });
+};
 
 exports.db = db;
