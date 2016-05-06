@@ -35,10 +35,11 @@ exports.addPointsBatch = function(usernames) { // SUPER hack
   for (let username of usernames) {
     // console.log("USERNAME", username);
     let statement = `
-      INSERT OR REPLACE INTO users (id, username, points)
+      INSERT OR IGNORE INTO users (id, username, points)
         VALUES (NULL, ?, (SELECT points FROM users WHERE username = ?) + 1);
     `;
     db.run(statement, [username, username]);
+    db.run(`UPDATE users SET points = points + 1 WHERE username = ?;`, username);
   }
   db.run("UPDATE users SET points = 1 WHERE points IS NULL;");
 };
@@ -55,6 +56,8 @@ exports.getAutoBan = function(username) {
       autoban = row.autoban;
       resolve(autoban);
     });
+  }).then(function(body) {
+    return body;;
   });
 };
 
@@ -63,7 +66,7 @@ exports.getLeaderboard = function() {
     db.all(`SELECT username, points FROM users ORDER BY points DESC LIMIT 10;`, [], function(err, results) {
       resolve(results);
     });
-  }).then(function(body){
+  }).then(function(body) {
     return body;
   });
 };
