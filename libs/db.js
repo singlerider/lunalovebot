@@ -80,4 +80,9 @@ exports.getUserPoints = function(username) {
   });
 };
 
+exports.modifyPoints = function(username, amount) {
+  exports.addUsers([username]);
+  db.run(`UPDATE users SET points = points + ? WHERE username = ?;`, [amount, username]);
+};
+
 exports.db = db;

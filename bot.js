@@ -10,9 +10,11 @@ let addUsers = require("./libs/db").addUsers;
 let pointsCron = require("./libs/points").pointsCron;
 let getPoints = require("./libs/points").getPoints;
 let leaderboard = require("./libs/points").leaderboard;
+let modifyPoints = require("./libs/db").modifyPoints;
+let fs = require('fs');
 
 function sendMessage(channel, username, message) {
-  let intro = `\<${username}\> `;
+  let intro = `@${username} `;
   bot.say(channel, intro + message);
 }
 
@@ -24,6 +26,7 @@ bot.connect().then(function(data) {
 
 bot.on("chat", function(channel, user, message, self) {
   let chan = channel.replace("#", "");
+  let splitMessage = message.toLowerCase().split(' ');
 
   if (user.username != SUPERUSER && user.username != chan) {
     new Promise(function(resolve, reject) {
@@ -37,7 +40,7 @@ bot.on("chat", function(channel, user, message, self) {
     });
   }
 
-  if (message.toLowerCase() == "!tokens") {
+  if (splitMessage[0] == "!tokens") {
     new Promise(function(resolve, reject) {
       let points = getPoints(user.username);
       resolve(points);
@@ -47,7 +50,31 @@ bot.on("chat", function(channel, user, message, self) {
     });
   }
 
-  if (message.toLowerCase() == "!leaderboard" && user.mod == true) {
+  if (splitMessage[0] == "!donation" && user.username == chan) {
+    let userToAdd = splitMessage[1];
+    let donationAmount = splitMessage[2];
+    if (userToAdd != undefined && donationAmount != undefined) {
+      let amount = parseInt(donationAmount.replace(/[^\.0-9]+/g,''));
+      if (isNaN(amount)) {
+       sendMessage(channel, user.username, "You gotta give me a number.");
+       return;
+      }
+      let pointsToAdd = Math.abs(parseInt(amount / 5)) * 500;
+      modifyPoints(userToAdd.replace("@", ""), pointsToAdd);
+      sendMessage(channel, user.username, `${pointsToAdd} tokens to ${userToAdd} for the $${amount} donation!`);
+      let today = new Date();
+      let dd = today.getDate();
+      let mm = today.getMonth()+1; //January is 0!
+      let yyyy = today.getFullYear();
+      fs.appendFile(`logs/${yyyy}-${mm}-${dd}.txt`, `${user.username} added ${pointsToAdd} to ${userToAdd} at ${new Date()}` + '\n', function (err) {});
+      return;
+    } else {
+      sendMessage(channel, user.username, "cmonBruh - it's \"!donation USERNAME AMOUNT\"");
+      return;
+    }
+  }
+
+  if (splitMessage[0] == "!leaderboard" && user.mod == true) {
     new Promise(function(resolve, reject) {
       resolve(leaderboard());
     }).then(function(results) {
@@ -58,9 +85,8 @@ bot.on("chat", function(channel, user, message, self) {
   }
 
   if (user.username == chan || user.username == SUPERUSER) {
-    message = message.toLowerCase().split(" ");
-    if (message[0].replace(PREFIX, "") == "autoban") {
-      addAutoban(message[1]);
+    if (splitMessage[0].replace(PREFIX, "") == "autoban") {
+      addAutoban(splitMessage[1]);
       return;
     }
   }
@@ -69,9 +95,8 @@ bot.on("chat", function(channel, user, message, self) {
 
 bot.on("whisper", function(user, message) {
   if (user.username == PRIMARY_CHANNEL.replace("#", "") || user.username == SUPERUSER) {
-    message = message.toLowerCase().split(" ");
-    if (message[0].replace(PREFIX, "") == "autoban") {
-      addAutoban(message[1]);
+    if (splitMessage[0].replace(PREFIX, "") == "autoban") {
+      addAutoban(splitMessage[1]);
     }
   }
 });
