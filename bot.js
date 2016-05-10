@@ -24,6 +24,20 @@ bot.connect().then(function(data) {
   //
 });
 
+bot.on("subanniversary", function (channel, username, months) {
+    let chan = channel.replace("#", "");
+    let pointsToAdd = parseInt(months) * 100;
+    if (pointsToAdd > 1000) {
+      pointsToAdd = 1000;
+    }
+    modifyPoints(username, pointsToAdd);
+    let plural = "months";
+    if (months < 2) {
+      plural = month;
+    }
+    bot.say(chan, `/me ${username} gets ${pointsToAdd} tokens for ${months} ${plural}!`);
+});
+
 bot.on("chat", function(channel, user, message, self) {
   let chan = channel.replace("#", "");
   let splitMessage = message.toLowerCase().split(' ');
