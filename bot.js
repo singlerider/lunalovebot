@@ -41,7 +41,6 @@ bot.on("subanniversary", function (channel, username, months) {
 bot.on("chat", function(channel, user, message, self) {
   let chan = channel.replace("#", "");
   let splitMessage = message.toLowerCase().split(' ');
-
   if (user.username != SUPERUSER && user.username != chan) {
     new Promise(function(resolve, reject) {
       let autoban = getAutoBan(user.username);
@@ -94,6 +93,29 @@ bot.on("chat", function(channel, user, message, self) {
     }).then(function(results) {
       console.log(results);
       sendMessage(chan, user.username, results);
+      return;
+    });
+  }
+
+  if (splitMessage[0] == "!destroy") {
+    let username = splitMessage[1];
+    if (username == undefined) {
+      sendMessage(chan, user.username, "You've got to include a user to timeout!");
+    }
+    new Promise(function(resolve, reject) {
+      let points = getPoints(user.username);
+      resolve(points);
+    }).then(function(points) {
+      if (points >= 100) {
+        new Promise(function(resolve, reject) {
+          resolve(modifyPoints(user.username, -100));
+        }).then(function(points) {
+          bot.timeout(chan, username, 30);
+          sendMessage(chan, user.username, ` just REKT ${username}`);
+        });
+      } else {
+        sendMessage(chan, user.username, "\'You trying to rip me off? Come back when you have more tokens");
+      }
       return;
     });
   }
