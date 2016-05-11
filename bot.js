@@ -106,12 +106,13 @@ bot.on("chat", function(channel, user, message, self) {
       let points = getPoints(user.username);
       resolve(points);
     }).then(function(points) {
+      console.log(points);
       if (points >= 100) {
         new Promise(function(resolve, reject) {
           resolve(modifyPoints(user.username, -100));
-        }).then(function(points) {
+        }).then(function() {
           bot.timeout(chan, username, 30);
-          sendMessage(chan, user.username, ` just REKT ${username}`);
+          sendMessage(chan, user.username, ` [${points} tokens ] just REKT ${username}.`);
         });
       } else {
         sendMessage(chan, user.username, "\'You trying to rip me off? Come back when you have more tokens");
