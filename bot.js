@@ -11,6 +11,8 @@ let pointsCron = require("./libs/points").pointsCron;
 let getPoints = require("./libs/points").getPoints;
 let leaderboard = require("./libs/points").leaderboard;
 let modifyPoints = require("./libs/db").modifyPoints;
+let gamble;
+let gambleGame = require("./gamble");
 let fs = require('fs');
 
 function sendMessage(channel, username, message) {
@@ -24,18 +26,18 @@ bot.connect().then(function(data) {
   //
 });
 
-bot.on("subanniversary", function (channel, username, months) {
-    let chan = channel.replace("#", "");
-    let pointsToAdd = parseInt(months) * 100;
-    if (pointsToAdd > 1000) {
-      pointsToAdd = 1000;
-    }
-    modifyPoints(username, pointsToAdd);
-    let plural = "months";
-    if (months < 2) {
-      plural = month;
-    }
-    bot.say(chan, `/me ${username} gets ${pointsToAdd} tokens for ${months} ${plural}!`);
+bot.on("subanniversary", function(channel, username, months) {
+  let chan = channel.replace("#", "");
+  let pointsToAdd = parseInt(months) * 100;
+  if (pointsToAdd > 1000) {
+    pointsToAdd = 1000;
+  }
+  modifyPoints(username, pointsToAdd);
+  let plural = "months";
+  if (months < 2) {
+    plural = month;
+  }
+  bot.say(chan, `/me ${username} gets ${pointsToAdd} tokens for ${months} ${plural}!`);
 });
 
 bot.on("chat", function(channel, user, message, self) {
@@ -67,19 +69,19 @@ bot.on("chat", function(channel, user, message, self) {
     let userToAdd = splitMessage[1];
     let donationAmount = splitMessage[2];
     if (userToAdd != undefined && donationAmount != undefined) {
-      let amount = parseInt(donationAmount.replace(/[^\.0-9]+/g,''));
+      let amount = parseInt(donationAmount.replace(/[^\.0-9]+/g, ''));
       if (isNaN(amount)) {
-       sendMessage(channel, user.username, "You gotta give me a number.");
-       return;
+        sendMessage(channel, user.username, "You gotta give me a number.");
+        return;
       }
       let pointsToAdd = Math.abs(parseInt(amount / 5)) * 500;
       modifyPoints(userToAdd.replace("@", ""), pointsToAdd);
       sendMessage(channel, user.username, `${pointsToAdd} tokens to ${userToAdd} for the $${amount} donation!`);
       let today = new Date();
       let dd = today.getDate();
-      let mm = today.getMonth()+1; //January is 0!
+      let mm = today.getMonth() + 1; //January is 0!
       let yyyy = today.getFullYear();
-      fs.appendFile(`logs/${yyyy}-${mm}-${dd}.txt`, `${user.username} added ${pointsToAdd} to ${userToAdd} at ${new Date()}` + '\n', function (err) {});
+      fs.appendFile(`logs/${yyyy}-${mm}-${dd}.txt`, `${user.username} added ${pointsToAdd} to ${userToAdd} at ${new Date()}` + '\n', function(err) {});
       return;
     } else {
       sendMessage(channel, user.username, "cmonBruh - it's \"!donation USERNAME AMOUNT\"");
@@ -101,6 +103,7 @@ bot.on("chat", function(channel, user, message, self) {
     let username = splitMessage[1];
     if (username == undefined) {
       sendMessage(chan, user.username, "You've got to include a user to timeout!");
+      return;
     }
     new Promise(function(resolve, reject) {
       let points = getPoints(user.username);
@@ -119,6 +122,37 @@ bot.on("chat", function(channel, user, message, self) {
       }
       return;
     });
+  }
+
+  if (splitMessage[0] == "!gamble") {
+    if (gambleGame.gambleExists == true) {
+      sendMessage(chan, user.username, "There's already one happening. Type \"!join\"");
+      return;
+    } else {
+      let amount = splitMessage[1];
+      if (parseInt(amount) == NaN) {
+        sendMessage(chan, user.username, "Bruh. Give me a number!");
+        return;
+      }
+      new Promise((resolve, reject) => {
+        let points = getPoints(user.username);
+        resolve(points);
+      }).then(function(points) {
+        console.log(points);
+        if (points >= amount) {
+          new Promise((resolve, reject) => {
+            resolve(modifyPoints(user.username, -100));
+          }).then(() => {
+            gamble = new gambleGamble();
+            sendMessage(chan, user.username, ` [${points} tokens ] just REKT ${username}.`);
+          });
+        } else {
+          sendMessage(chan, user.username, "Dude. You can't gamble with something you don't have.");
+        }
+        return;
+      });
+    }
+
   }
 
   if (user.username == chan || user.username == SUPERUSER) {
