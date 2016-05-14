@@ -154,16 +154,16 @@ bot.on("chat", function(channel, user, message, self) {
             gamblelib.gambleExists = true;
             gamble.addPlayer(user.username, amount);
             console.log(2, gamblelib.gambleExists);
-            sendMessage(chan, user.username, ` created a new gamble with an entry price of ${amount}. 30 seconds remaining.`);
+            bot.say(chan, "/me " + user.username + ` created a new gamble with an entry price of ${amount}. 30 seconds remaining.`);
             setTimeout(() => {
               let winner = gamble.decideWinner();
               let pot = gamble.getPot();
-              console.log(pot);
-              modifyPoints(user.username, pot);
+              console.log(winner, pot, gamble.players);
+              modifyPoints(winner, pot);
               gamblelib.gambleExists = false;
               gamble.kill();
-              sendMessage(chan, winner, ` just won ${pot} tokens!`)
-            }, 10 * 1000);
+              bot.say(chan, "/me " + winner + ` just won ${pot - amount} tokens!`)
+            }, 30 * 1000);
           });
         } else {
           sendMessage(chan, user.username, "Dude. You can't gamble with something you don't have.");
@@ -189,7 +189,7 @@ bot.on("chat", function(channel, user, message, self) {
               resolve(modifyPoints(user.username, gamble.betAmount * -1));
             }).then(() => {
               gamble.addPlayer(user.username, points);
-              bot.whisper(user.username, "There's no turning back now.");
+              bot.whisper(user.username, `There's no turning back now. ${gamble.betAmount} tokens have been debited from your account`);
             });
           } else {
             bot.whisper(user.username, "Learn to count.");
