@@ -7,12 +7,13 @@ class Gamble {
     this.betAmount = betAmount;
     this.isActive = true;
     this.players = new Map();
-    setTimeout(() => {
-      this.kill();
-    }, 10 * 1000);
+    console.log(3, gambleExists);
   }
 
   getPot() {
+    console.log("OBJECT KEYS LENGTH", Object.keys(this.players).length);
+    console.log("BET AMOUNT", this.betAmount);
+    console.log(Object.keys(this.players).length * this.betAmount);
     return Object.keys(this.players).length * this.betAmount;
   }
 
@@ -35,8 +36,14 @@ class Gamble {
   }
 
   kill() {
+    console.log(4, gambleExists);
     this.players = new Map();
-    gambleExists = false;
+  }
+
+  decideWinner() {
+    let keys = Object.keys(this.players);
+    console.log("KEYS", keys);
+    return keys[Math.floor(Math.random() * keys.length)];
   }
 
   playerExists(player) {
@@ -47,22 +54,6 @@ class Gamble {
     }
   }
 }
-
-let gamble = new Gamble(5);
-gambleExists = true;
-
-function checkExists() {
-  console.log("singlerider EXISTS?", gamble.playerExists("singlerider"));
-  console.log("lunalovebot EXISTS?", gamble.playerExists("lunalovebot"));
-}
-
-gamble.addPlayer("singlerider", 5);
-console.log(gamble.betAmount);
-console.log(gamble.checkBetAmount(5));
-console.log(gamble.checkBetAmount(10));
-console.log("POT:", gamble.getPot());
-checkExists();
-
 
 exports.gambleExists = gambleExists;
 exports.Gamble = Gamble;
