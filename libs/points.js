@@ -8,9 +8,11 @@ let getLeaderboard = require("./db").getLeaderboard;
 
 function parseUsers(userDict) {
   let allUsers = [];
-  for (let userType in userDict.chatters) {
-    for (let user of userDict.chatters[userType]) {
-      allUsers.push(user);
+  if (userDict != undefined) {
+    for (let userType in userDict.chatters) {
+      for (let user of userDict.chatters[userType]) {
+        allUsers.push(user);
+      }
     }
   }
   return allUsers;
